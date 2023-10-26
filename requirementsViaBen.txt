@@ -1,0 +1,7 @@
+quest tracker for dnd:
+- add custom quest
+- add updates/ notes on quest
+- a way to filter done quests (checkmarks? mark as done?)
+- user interface
+- graphics not required
+- dragons and such
