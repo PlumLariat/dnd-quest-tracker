@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 
+# external libs
 from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
 from tkinter.ttk import Combobox
+import logging
+# self created libs
+from Quest import Quest
 
 root = Tk()
 root.title("D&D Quest Tracker")
@@ -11,10 +15,39 @@ icon = PhotoImage(file='./assets/dragon-head.png')
 root.iconphoto(True, icon)
 root.geometry("640x512")
 root.resizable(width=False, height=False)
+log = logging.getLogger("quest-tracker")
+logging.basicConfig(level=logging.DEBUG)
+
+active_quests = []
 
 
 # quest menu functions
+def add_quest_button_clicked(quest_title, quest_disc, quest_obj, is_basic_quest):
+    if is_basic_quest:
+
+        log.debug("Title: " + quest_title)
+        log.debug("Quest Disc: " + quest_disc)
+        log.debug("Objectives: " + quest_obj)
+        created_quest = Quest(quest_title, quest_disc, quest_obj)
+        active_quests.insert(0, created_quest)
+
+    # else should be activated if the request came from a detailed quest
+    else:
+        messagebox.showerror("What", "How did you even get here?")
+
+
+def add_objective_button_clicked():
+    pass
+
+
 def add_quest():
+
+    # absolute unresolved chicanery
+    # global quest_title
+    # global quest_description
+    # global quest_objectives
+
+    is_basic_quest = True
 
     top = Toplevel()
     top.resizable(width=False, height=False)
@@ -28,8 +61,8 @@ def add_quest():
     quest_title_frame.grid(row=0, column=0)
     quest_title_label = Label(quest_title_frame, text="Title:")
     quest_title_label.grid(row=0, column=0)
-    quest_title_input_field = Entry(quest_title_frame, width=60)
-    quest_title_input_field.grid(row=0, column=1)
+    quest_title_entry = Entry(quest_title_frame, width=60)
+    quest_title_entry.grid(row=0, column=1)
 
     quest_description_frame = LabelFrame(add_quest_frame, text="Description:")
     quest_description_frame.grid(row=1, column=0)
@@ -41,8 +74,24 @@ def add_quest():
     quest_objectives_frame.grid(row=2, column=0)
     quest_objectives_combo = Combobox(quest_objectives_frame, values=quest_objectives, width=60)
     quest_objectives_combo.grid(row=0, column=0)
-    quest_objectives_add_button = Button(quest_objectives_frame, text="Add",padx=10)
+    quest_objectives_add_button = Button(quest_objectives_frame,
+                                         text="Add",
+                                         padx=10,
+                                         command=add_objective_button_clicked)
     quest_objectives_add_button.grid(row=0, column=1)
+
+    quest_dialog_button_frame = LabelFrame(add_quest_frame)
+    quest_dialog_button_frame.grid(row=3, column=0, sticky='w')
+    cancel_button = Button(quest_dialog_button_frame, text="Cancel", bg='red', command=top.destroy)
+    cancel_button.grid(row=0,column=0)
+    add_quest_button = Button(quest_dialog_button_frame,
+                              text="Add Quest",
+                              bg='green',
+                              command=lambda: add_quest_button_clicked(quest_title_entry.get(),
+                                                                       quest_description_text.get("1.0", 'end-1c'),
+                                                                       quest_objectives_combo.get(),
+                                                                       is_basic_quest))
+    add_quest_button.grid(row=0, column=1)
 
     return
 
