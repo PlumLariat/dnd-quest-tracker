@@ -6,6 +6,8 @@ from tkinter import messagebox
 from tkinter import ttk
 from tkinter.ttk import Combobox
 import logging
+from PIL import ImageTk, Image
+
 # self created libs
 from Quest import Quest
 
@@ -25,22 +27,33 @@ active_quests = []
 def add_quest_button_clicked(quest_title, quest_disc, quest_obj, is_basic_quest):
     if is_basic_quest:
 
+        if quest_title == "peener":
+            global img
+            top = Toplevel()
+            top.title("suprise!")
+            img = ImageTk.PhotoImage(Image.open(r'./assets/other-head.png'))
+            Label(top, image=img).pack()
+            return
+
         log.debug("Title: " + quest_title)
         log.debug("Quest Disc: " + quest_disc)
-        log.debug("Objectives: " + quest_obj)
+        log.debug("Objectives: " + str(quest_obj))
         created_quest = Quest(quest_title, quest_disc, quest_obj)
         active_quests.insert(0, created_quest)
+
+        log.info(str(active_quests))
 
     # else should be activated if the request came from a detailed quest
     else:
         messagebox.showerror("What", "How did you even get here?")
 
 
-def add_objective_button_clicked():
-    pass
-
-
 def add_quest():
+
+    def add_objective_button_clicked():
+        quest_objectives_combo['values'] += (quest_objectives_entry.get(), )
+        quest_objectives.append(quest_objectives_entry.get())
+        quest_objectives_entry.delete(0, END)
 
     # absolute unresolved chicanery
     # global quest_title
@@ -69,16 +82,22 @@ def add_quest():
     quest_description_text = Text(quest_description_frame, width=60, height=10)
     quest_description_text.grid(row=2, column=0)
 
-    quest_objectives = []
+    # =OBJECTIVES=SECTION===============================================================================================
+    quest_objectives = ['obj1', 'obj2', 'obj3']
+    selection = StringVar()
     quest_objectives_frame = LabelFrame(add_quest_frame, text="Objectives:")
     quest_objectives_frame.grid(row=2, column=0)
-    quest_objectives_combo = Combobox(quest_objectives_frame, values=quest_objectives, width=60)
+    quest_objectives_combo = Combobox(quest_objectives_frame, values=quest_objectives, width=40, textvariable=selection)
     quest_objectives_combo.grid(row=0, column=0)
+    quest_objectives_entry = Entry(quest_objectives_frame, bg='#D3F2EC')
+    quest_objectives_entry.grid(row=0, column=1)
+
     quest_objectives_add_button = Button(quest_objectives_frame,
                                          text="Add",
                                          padx=10,
-                                         command=add_objective_button_clicked)
-    quest_objectives_add_button.grid(row=0, column=1)
+                                         command=lambda: add_objective_button_clicked())
+    quest_objectives_add_button.grid(row=0, column=2)
+    # =OBJECTIVES=SECTION===============================================================================================
 
     quest_dialog_button_frame = LabelFrame(add_quest_frame)
     quest_dialog_button_frame.grid(row=3, column=0, sticky='w')
@@ -89,7 +108,7 @@ def add_quest():
                               bg='green',
                               command=lambda: add_quest_button_clicked(quest_title_entry.get(),
                                                                        quest_description_text.get("1.0", 'end-1c'),
-                                                                       quest_objectives_combo.get(),
+                                                                       quest_objectives,
                                                                        is_basic_quest))
     add_quest_button.grid(row=0, column=1)
 
@@ -150,8 +169,15 @@ second_frame = Frame(canvas)    # When adding an item to the scrollbar add it to
 # add new frame to a window in the canvas
 canvas.create_window((0, 0), window=second_frame, anchor="nw")
 
+test_quest_label_frame = LabelFrame(second_frame, text="Testing")
+test_quest_label_frame.pack(anchor='w')
+test_quest_label = Label(test_quest_label_frame, text="Test Title")
+test_quest_label.grid(row=0, column=0)
+test_quest_Button = Button(test_quest_label_frame,  text="View")
+test_quest_Button.grid(row=0, column=1)
 # This is the button that is always there on first load to guide quest creation
 Button(second_frame, text="Add A Basic Quest", background='red', command=add_quest).pack()
+
 
 root.config(menu=menuBar)
 root.mainloop()
